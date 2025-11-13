@@ -295,7 +295,7 @@ The response message sent by the server includes the characteristic UUID followe
 16   |                                                               |
      +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 20   |               |                                               |
-     +-+-+-+-+-+-+-+-+        Value (N bytes)                        +
+     +-+-+-+-+-+-+-+-+          Value (N bytes)                      +
      |                                                               |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+   
 ```
@@ -321,7 +321,7 @@ The client sends a Write Characteristic request message to set the value of the 
 16   |                                                               |
      +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 20   |               |                                               |
-     +-+-+-+-+-+-+-+-+        Value (N bytes)                        +
+     +-+-+-+-+-+-+-+-+          Value (N bytes)                      +
      |                                                               |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+   
 ```
@@ -348,3 +348,70 @@ The format of the response message is:
      +-+-+-+-+-+-+-+-+   
 ```
 
+### Enable Characteristic Notifications
+
+The client sends an Enable Characteristic Notifications request message to enable or disable unsolicited notifications on the specified characteristic. This message is only applicable to characteristics that support the NOTIFY property.  The format of the message is: 
+
+```
+                        1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0   |   Version     |       5       |    Seq Num    |       0       |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 4   |       17      |                                               |
+     +-+-+-+-+-+-+-+-+                                               +
+ 8   |                                                               |
+     +                                                               +
+12   |                       Characteristic UUID                     |
+     +                                                               +
+16   |                                                               |
+     +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+20   |               |    Enable     |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+   
+```
+
+where the Enable byte is a boolean used to enable (1) or disable (0) the notifications.
+
+The format of the response message is:
+
+```
+                        1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0   |   Version     |       5       |    Seq Num    |   Resp Code   |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 4   |       16      |                                               |
+     +-+-+-+-+-+-+-+-+                                               +
+ 8   |                                                               |
+     +                                                               +
+12   |                       Characteristic UUID                     |
+     +                                                               +
+16   |                                                               |
+     +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+20   |               |
+     +-+-+-+-+-+-+-+-+  
+```
+
+### Characteristic Notification
+
+The server sends a Characteristric Notification message to inform the client of an event.  The event can be periodic, or it can be triggered by a previous command sent by the client to request the server to perform some operation.  The format of the message is:
+
+```
+                        1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0   |   Version     |       6       |    Seq Num    |       0       |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 4   |     16 + N    |                                               |
+     +-+-+-+-+-+-+-+-+                                               +
+ 8   |                                                               |
+     +                                                               +
+12   |                       Characteristic UUID                     |
+     +                                                               +
+16   |                                                               |
+     +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+20   |               |                                               |
+     +-+-+-+-+-+-+-+-+          Value (N bytes)                      +
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+   
+```
