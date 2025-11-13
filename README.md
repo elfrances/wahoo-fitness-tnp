@@ -30,7 +30,7 @@ At a high level, DIRCON is simply "BLE over TCP/IP".  That is, the Bluetooth Low
 
 ## Service Advertisement
 
-DIRCON uses Multicast DNS (mDNS) to advertise the "wahoo-fitness-tnp" (WFTNP) on the local network, so that a DIRCON-compatible virtual training app (such as FulGaz or Zwift) can find it.
+DIRCON uses Multicast DNS (mDNS) to advertise the "wahoo-fitness-tnp" (WFTNP) on the local network, so that a DIRCON-compatible virtual training app (such as FulGaz, Wahoo SYSTM, or Zwift) can find it.
 
 The screenshot below shows the macOS mDNS browser app "Discovery" having discovered three WFTNP devices on the local network. In this case, the "KICKR CB7D" was a Wahoo KICKR V5 bike trainer connected to the home network using the DIRCON dongle.  
 
@@ -60,9 +60,49 @@ In the above screenshot all three indoor bike devices advertised the Fitness Mac
 
 ## Connection Establishment
 
-WFTNP follows the client-server model, where the virtual training app is the client and the smart trainer device is the server.
+DIRCON follows the client-server model, where the virtual training app is the client and the smart trainer device is the server.
 
 Once the virtual training app discovers the smart trainer, it uses the IP address and port number obtained from the mDNS response to establish the TCP connection to the trainer.  Once established, client and server can exchange DIRCON messages, with the client generally sending a request, and the server answering with a response. The exception being the periodic unsolicited notifications the server (smart trainer) sends to the client during the activity.
+
+To reduce the communication overhead, TCP (by default) tries to buffer as much data as possible before sending it to the peer.  Typically, the internal buffering time is about 200 ms. But DIRCON is a time-sensitive protocol, so to reduce the transaction latency it is suggested that the TCP connection use the TCP_NODELAY option, which disables Nagle's algorithm.
+
+And to allow the client and the server to detect connection drops, it is recommended that the TCP connection use the TCP_KEEPALIVE option as well.
+
+## Message Format
+
+The figure below shows the generic DIRCON message format:
+
+```
+                        1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Version     |  Message Type |    Seq Num    |  Data Length  |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                               .                               |
+   |                               .                               |
+   |                          Optional Data                        |
+   |                               .                               |
+   |                               .                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+**Version:** Indicates the protocol version number. The current version is 1.
+
+**Message Type:** Indicates the type of message sent or received.
+
+| Msg Type | Description |
+|-------|-------|
+| 1 | Discover Services |
+| 2 | Discover Characteristics |
+| 3 | Read Characteristic |
+| 4 | Write Characteristic |
+| 5 | Enable Characteristic Notifications |
+| 6 | Characteristic Notification |
+
+**Seq Num:** Indicates the sequence number of the message.
+
+**Data Length:** Indicates the length (in bytes) of the optional data that follows the fixed message header.
+
 
 
 
