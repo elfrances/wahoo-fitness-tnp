@@ -70,7 +70,7 @@ And to allow the client and the server to detect connection drops, it is recomme
 
 ## Message Format
 
-The figure below shows the generic DIRCON message format:
+The figure below shows the generic DIRCON message format. It includes a fixed message header followed by an optional, variable-length, data:
 
 ```
                         1                   2                   3
@@ -415,3 +415,5 @@ The server sends a Characteristric Notification message to inform the client of 
      |                                                               |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+   
 ```
+
+Note: when the notification value is a multi-byte integer (e.g. UINT16, UINT24, UINT32, etc) the value is stored in BLE's "little-endian" format, with the least significant byte first and the most significant byte last.
