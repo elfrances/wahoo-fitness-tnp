@@ -22,6 +22,14 @@ At the time of this writing (late 2025) DIRCON is available on a wide range of i
 |Wahoo|KICKR BIKE SHIFT|Y|Y|
 |Wahoo|KICKR CORE V2|N|Y|
 
+The trend in the smart trainer market is moving toward built-in Wi-Fi connectivity because it offers a more stable and faster connection than traditional Bluetooth or ANT+ for competitive virtual racing.
+
+# Protocol Definition
+
+At a high level, DIRCON is simply "BLE over TCP/IP".  That is, the Bluetooth Low Energy (BLE) messages normally exchanged between the virtual cycling app (the BLE client) and the smart trainer (the BLE server) are instead encapsulated and transmitted using a TCP connection over wired Ethernet or WiFi. That's it.
+
+DIRCON uses the mDNS service "wahoo-fitness-tnp" (WFTNP) to advertise itself on the local network, so that a DIRCON-compatible virtual cycling app (such as FulGaz or Zwift) can find it.  The WFNTP mDNS advertisement include the UUID of the BLE services supported by the smart trainer, which typically include FTMS (0x1826) and CPS (0x1818).  The screenshot below shows the macOS mDNS browser app "Discovery" having discovered three DIRCON devices on the local network:
+
 
 
 
