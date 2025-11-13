@@ -99,9 +99,11 @@ The figure below shows the generic DIRCON message format:
 | 5 | Enable Characteristic Notifications |
 | 6 | Characteristic Notification |
 
-**Seq Num:** Indicates the sequence number of the message.
+**Seq Num:** Indicates the sequence number of the message, used to match request and response.
 
-**Data Length:** Indicates the length (in bytes) of the optional data that follows the fixed message header.
+**Data Length:** Indicates the length (in bytes) of the Optional Data that follows the fixed message header. The 16-bit value is stored in network byte order.
+
+**Optional Data:** Present in all message types, except for Discover Services.
 
 
 
