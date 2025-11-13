@@ -142,7 +142,7 @@ After connecting to the server, the client sends a Discover Services request mes
      +-+-+-+-+-+-+-+-+
 ```
 
-The response message sent by the server includes a list of the 128-bit UUID's of all the services it supports. Notice that, in general, this list may include more UUID's than the ones stated in the mDNS advertisement.  The format of the message is:
+The response message sent by the server includes a list of the 128-bit UUID's of all the services it supports. Notice that, in general, this list may include more UUID's than the ones stated in the ble-service-uuids text record sent in the mDNS advertisement.  The format of the message is:
 
 ```
                         1                   2                   3
@@ -256,6 +256,95 @@ The available properties are:
 | 0x02 | WRITE |
 | 0x04 | NOTIFY |
 
+### Read Characteristic
 
+The client sends a Read Characteristic request message to get the current value of the specified characteristic.  This message is only applicable to characteristics that support the READ property.  The format of the message is:
 
+```
+                        1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0   |   Version     |       3       |    Seq Num    |       0       |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 4   |       16      |                                               |
+     +-+-+-+-+-+-+-+-+                                               +
+ 8   |                                                               |
+     +                                                               +
+12   |                       Characteristic UUID                     |
+     +                                                               +
+16   |                                                               |
+     +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+20   |               |                                               |
+     +-+-+-+-+-+-+-+-+
+```
+
+The response message sent by the server includes the characteristic UUID followed by its current value. The format of the message is:
+
+```
+                        1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0   |   Version     |       3       |    Seq Num    |   Resp Code   |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 4   |     16 + N    |                                               |
+     +-+-+-+-+-+-+-+-+                                               +
+ 8   |                                                               |
+     +                                                               +
+12   |                       Characteristic UUID                     |
+     +                                                               +
+16   |                                                               |
+     +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+20   |               |                                               |
+     +-+-+-+-+-+-+-+-+        Value (N bytes)                        +
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+   
+```
+
+Note: when the value is a multi-byte integer (e.g. UINT16, UINT24, UINT32, etc) the value is stored in BLE's "little-endian" format, with the least significant byte first and the most significant byte last.
+
+### Write Characteristic
+
+The client sends a Write Characteristic request message to set the value of the specified characteristic.  This message is only applicable to characteristics that support the WRITE property.  The format of the message is:
+
+```
+                        1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0   |   Version     |       4       |    Seq Num    |       0       |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 4   |     16 + N    |                                               |
+     +-+-+-+-+-+-+-+-+                                               +
+ 8   |                                                               |
+     +                                                               +
+12   |                       Characteristic UUID                     |
+     +                                                               +
+16   |                                                               |
+     +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+20   |               |                                               |
+     +-+-+-+-+-+-+-+-+        Value (N bytes)                        +
+     |                                                               |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+   
+```
+
+Note: when the value is a multi-byte integer (e.g. UINT16, UINT24, UINT32, etc) the value is stored in BLE's "little-endian" format, with the least significant byte first and the most significant byte last.
+
+The format of the response message is:
+
+```
+                        1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 0   |   Version     |       4       |    Seq Num    |   Resp Code   |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ 4   |       16      |                                               |
+     +-+-+-+-+-+-+-+-+                                               +
+ 8   |                                                               |
+     +                                                               +
+12   |                       Characteristic UUID                     |
+     +                                                               +
+16   |                                                               |
+     +               +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+20   |               |
+     +-+-+-+-+-+-+-+-+   
+```
 
