@@ -1,12 +1,12 @@
 # Introduction
 
-This document is an unofficial specification of the wahoo-fitness-tnp service used by the Direct Connect (DIRCON) protocol. The information herein was obtained by reverse engineering the operation of the protocol, without any reference to the official (proprietary) specification from Wahoo Fitness. 
+This document is an unofficial specification of the wahoo-fitness-tnp service and associated WFTNP protocol. The information herein was obtained by reverse engineering the operation of the protocol, without any reference to the official (proprietary) specification from Wahoo Fitness. 
 
-Wahoo Fitness first intoduced DIRCON in January 2021, via an optional [dongle](https://www.wahoofitness.com/devices/indoor-cycling/accessories/kickr-dircon-buy) that connected to the RJ-11 port on the KICKR V5 indoor trainer.  This DIRCON dongle only worked with wired Ethernet; i.e. there was no support for WiFi.
+Wahoo Fitness first intoduced WFTNP in January 2021, when it released its [Direct Connect (DIRCON)](https://www.wahoofitness.com/devices/indoor-cycling/accessories/kickr-dircon-buy) adapter.  The adapter connects to the RJ-11 port on the KICKR V5 indoor trainer, which was Wahoo's flagship trainer at the time, and to the wired Ethernet network via an RJ-45 port.  This adapter has no support for WiFi.
 
 For an in-depth review of this DIRCON dongle, you can read [this](https://www.dcrainmaker.com/2021/01/wahoo-starts-shipping-kickr-2020-direct-connect-cable-hands-on-details.html) blog post by DC Rainmaker or watch [this](https://youtu.be/XtIM5675dLo?si=B5nM_biNNlvfmuu2) Youtube video from Shane Miller.
 
-At the time of this writing (late 2025) DIRCON is available on a wide range of indoor trainers from different manufacturers.  The table below lists some of them:
+At the time of this writing (late 2025) WFTNP is available on a wide range of indoor trainers from different manufacturers.  The table below lists some of them:
 
 | Brand | Model | Enet | WiFi |
 |-------|-------|:----:|:----:|
@@ -23,6 +23,8 @@ At the time of this writing (late 2025) DIRCON is available on a wide range of i
 |Wahoo|KICKR CORE V2|N|Y|
 
 The trend in the smart trainer market is moving toward built-in Wi-Fi connectivity because it offers a more stable and faster connection than traditional Bluetooth or ANT+ for competitive virtual racing.
+
+**Note:** in the rest of this document we use DIRCON and WFTNP interchangeably, although DIRCON is a marketing name for a dongle that uses WFTNP.
 
 # Protocol Overview
 
@@ -62,7 +64,7 @@ In the above screenshot all three indoor bike devices advertised the Fitness Mac
 
 DIRCON follows the client-server model, where the virtual training app is the client and the smart trainer device is the server.
 
-Once the virtual training app discovers the smart trainer, it uses the IP address and port number obtained from the mDNS response to establish the TCP connection to the trainer.  Once established, client and server can exchange DIRCON messages, with the client generally sending a request, and the server answering with a response. The exception being the periodic unsolicited notifications the server (smart trainer) sends to the client during the activity.
+Once the virtual training app discovers the smart trainer, it uses the IP address and port number obtained from the mDNS response to establish the TCP connection to the trainer.  Once established, client and server can exchange DIRCON messages, with the client generally sending a request, and the server answering with a response. The exception being the unsolicited notifications the server (smart trainer) sends to the client during the activity.
 
 To reduce the communication overhead, TCP (by default) tries to buffer as much data as possible before sending it to the peer.  Typically, the internal buffering time is about 200 ms. But DIRCON is a time-sensitive protocol, so to reduce the transaction latency it is suggested that the TCP connection use the TCP_NODELAY option, which disables Nagle's algorithm.
 
