@@ -9,7 +9,7 @@ For an in-depth review of this DIRCON dongle, you can read [this](https://www.dc
 At the time of this writing (late 2025) DIRCON is available on a wide range of indoor trainers from different manufacturers.  The table below lists some of them:
 
 | Brand | Model | Enet | WiFi |
-|-------|-------|------|------|
+|-------|-------|:----:|:----:|
 |Elite|Justo|Y|N|
 |Elite|Justo 2|Y|Y|
 |Elite|Avanti|Y|Y|
@@ -26,11 +26,11 @@ The trend in the smart trainer market is moving toward built-in Wi-Fi connectivi
 
 # Protocol Overview
 
-At a high level, DIRCON is simply "BLE over TCP/IP".  That is, the Bluetooth Low Energy (BLE) messages normally exchanged between the virtual training app (the BLE client) and the smart trainer (the BLE server) are instead encapsulated and transmitted using a TCP connection over wired Ethernet or WiFi. That's it.
+At a high level, DIRCON is simply "BLE over TCP/IP".  That is, the Bluetooth Low Energy (BLE) messages normally exchanged between the virtual training app (the BLE client) and the smart trainer (the BLE server) are instead encapsulated and transmitted using a TCP connection over wired Ethernet or WiFi. That's it!
 
 ## Service Advertisement
 
-DIRCON uses Multicast DNS (mDNS) to advertise the "wahoo-fitness-tnp" (WFTNP) on the local network, so that a DIRCON-compatible virtual training app (such as FulGaz, Wahoo SYSTM, or Zwift) can find it.
+DIRCON uses Multicast DNS (mDNS) to advertise the "wahoo-fitness-tnp" (WFTNP) service on the local network, so that a DIRCON-compatible virtual training app (such as FulGaz, Wahoo SYSTM, or Zwift) can find it.
 
 The screenshot below shows the macOS mDNS browser app "Discovery" having discovered three WFTNP devices on the local network. In this case, the "KICKR CB7D" was a Wahoo KICKR V5 bike trainer connected to the home network using the DIRCON dongle.  
 
@@ -38,15 +38,15 @@ The screenshot below shows the macOS mDNS browser app "Discovery" having discove
 
 The mDNS query response sent by the trainer contains three relevant records:
 
-### A record
+### A Record
 
-The A record indicates the IP address of the trainer.
+The A record indicates the IP address of the trainer on the local network.
 
-### SRV record
+### SRV Record
 
-The SRV record indicates the TCP port number used by WFTNP.
+The SRV record indicates the TCP port number used by WFTNP, which by default is 36866.
 
-### TXT record
+### TXT Record
 
 The TXT record includes three strings:
 
@@ -56,7 +56,7 @@ The TXT record includes three strings:
 
 **ble-service-uuids** contains a comma-separated list of the 16-bit UUID of the BLE services supported by the device.
 
-In the above screenshot all three indoor bike devices advertised the Fitness Machine Service (FTMS) and the Cycling Power Service (CPS), with UUID's 0x1826 and 0x1818, respectively.
+In the above screenshot all three indoor bike devices advertised the Fitness Machine Service (FTMS) and the Cycling Power Service (CPS), with BLE UUID's 0x1826 and 0x1818, respectively.
 
 ## Connection Establishment
 
@@ -90,8 +90,8 @@ The figure below shows the generic DIRCON message format:
 
 **Message Type:** Indicates the type of message sent or received.
 
-| Msg Type | Description |
-|-------|-------|
+| Message Type | Description |
+|:-------:|-------|
 | 1 | Discover Services |
 | 2 | Discover Characteristics |
 | 3 | Read Characteristic |
@@ -105,6 +105,98 @@ The figure below shows the generic DIRCON message format:
 
 **Optional Data:** Present in all message types, except for Discover Services.
 
+While the operation of DIRCON is similar to BLE, there are a few notable differences:
+
+* DIRCON message types are a subset of the BLE message types.  For example, in BLE there is the NOTIFICATION and INDICATION message types, with their corresponding characteristic properties, used by the BLE server to send unsolicited data to the client, with the main difference being that the NOTIFICATION message is "best-effort" while the INDICATION message is "reliable".  But because DIRCON runs over TCP (a reliable transport protocol) **all** its messages are "reliable", hence there is no need for the INDICATION message type.
+* In DIRCON all messages, except for Characteristic Notification, are a request-response transaction, so there is no need for BLE's WRITE_WITHOUT_RESPONSE message either.
+* In DIRCON the UUID's of all services and characteristics are always 128-bit long. The 16-bit BLE UUID's are encapsulated in a 128-bit UUID using the BLE SIG Base UUID 0000**xxxx**-0000-1000-8000-00805F9B34FB, where the four hex digits **xxxx** are the 16-bit UUID; e.g. the FTMS UUID 0x1826 would be encoded as 00001826-0000-1000-8000-00805F9B34FB.
+* BLE treats the 128-bit UUID as an **unsigned integer value**, stored in memory using BLE's "little-endian" byte ordering; e.g. the UUID 00001826-0000-1000-8000-00805F9B34FB is treated as the unsigned integer 0x0000182600001000800000805F9B34FB and stored in memory as the byte sequence FB349B5F800000800010000026180000. In DIRCON the 128-bit UUID's are treated as a **raw 16-byte value**, stored in memory in the same "left-to-right" order used to represent them; e.g. the UUID 00001826-0000-1000-8000-00805F9B34FB is stored in memory as the byte sequence 0000182600001000800000805F9B34FB.
+
+### Discover Services
+
+After connecting to the server, the client sends a Discover Services request message to find out all the services supported by the server. The format of the message is:
+
+```
+                        1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Version     |  Message Type |    Seq Num    |  Data Length  |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+The response message sent by the server includes a list of the 128-bit UUID's of all the services it supports. Notice that, in general, this list may include more UUID's than the ones stated in the mDNS advertisement.  The format of the message is:
+
+```
+                        1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Version     |       1       |    Seq Num    |     16 * N    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   |                        Service UUID #1                        |
+   |                                                               |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   |                        Service UUID #2                        |
+   |                                                               |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                               .                               |
+   |                               .                               |
+   |                               .                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   |                        Service UUID #N                        |
+   |                                                               |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+### Discover Characteristics
+
+The client sends a Discover Characteristics request message to find out all the characteristics supported by the specified service. The format of the message is:
+
+```
+                        1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Version     |       2       |    Seq Num    |      16       |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   |                          Service UUID                         |
+   |                                                               |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+The response message sent by the server includes a list of records, one for each characteristic supported by the specified service.  The record includes the 128-bit UUID of the characteristic, and a byte with a bitwise OR of the properties of the given characteristic. The format of the message is:
+
+```
+                        1                   2                   3
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |   Version     |       3       |    Seq Num    |     17 * N    |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                                                               |
+   |                     Characteristic UUID                       |
+   |                                                               |
+   |                                                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |  Properties   |               .                               |
+   |-+-+-+-+-+-+-+-+               .                               |
+   |                               .                               |
+   |                               .                               |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+```
+
+The available properties are:
+
+| Value | Description |
+|:-------:|-------|
+| 0x01 | READ |
+| 0x02 | WRITE |
+| 0x04 | NOTIFY |
 
 
 
