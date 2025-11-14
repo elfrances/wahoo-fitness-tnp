@@ -75,7 +75,7 @@ And to allow the client and the server to detect connection drops, it is recomme
 The figure below shows the generic DIRCON message format. It includes a fixed message header followed by an optional, variable-length, data:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |  Message Type |    Seq Num    |   Resp Code   |
@@ -135,7 +135,7 @@ While the operation of DIRCON is similar to BLE, there are a few notable differe
 After connecting to the server, the client sends a Discover Services request message to find out all the services supported by the server. The format of the message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       1       |    Seq Num    |       0       |
@@ -147,7 +147,7 @@ After connecting to the server, the client sends a Discover Services request mes
 The response message sent by the server includes a list of the 128-bit UUID's of all the services it supports. Notice that, in general, this list may include more UUID's than the ones stated in the ble-service-uuids text record sent in the mDNS advertisement.  The format of the message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       1       |    Seq Num    |   Resp Code   |
@@ -191,7 +191,7 @@ The response message sent by the server includes a list of the 128-bit UUID's of
 The client sends a Discover Characteristics request message to find out all the characteristics supported by the specified service. The format of the message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       2       |    Seq Num    |       0       |
@@ -211,7 +211,7 @@ The client sends a Discover Characteristics request message to find out all the 
 The response message sent by the server includes the service UUID and a list of records, one for each characteristic supported by the specified service.  The record includes the 128-bit UUID of the characteristic, and a byte with the bitwise OR of the properties of the given characteristic. The format of the message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       2       |    Seq Num    |   Resp Code   |
@@ -263,7 +263,7 @@ The available properties are:
 The client sends a Read Characteristic request message to get the current value of the specified characteristic.  This message is only applicable to characteristics that support the READ property.  The format of the message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       3       |    Seq Num    |       0       |
@@ -283,7 +283,7 @@ The client sends a Read Characteristic request message to get the current value 
 The response message sent by the server includes the characteristic UUID followed by its current value. The format of the message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       3       |    Seq Num    |   Resp Code   |
@@ -309,7 +309,7 @@ Note: when the value is a multi-byte integer (e.g. UINT16, UINT24, UINT32, etc) 
 The client sends a Write Characteristic request message to set the value of the specified characteristic.  This message is only applicable to characteristics that support the WRITE property.  The format of the message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       4       |    Seq Num    |       0       |
@@ -333,7 +333,7 @@ Note: when the value is a multi-byte integer (e.g. UINT16, UINT24, UINT32, etc) 
 The format of the response message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       4       |    Seq Num    |   Resp Code   |
@@ -355,7 +355,7 @@ The format of the response message is:
 The client sends an Enable Characteristic Notifications request message to enable or disable unsolicited notifications on the specified characteristic. This message is only applicable to characteristics that support the NOTIFY property.  The format of the message is: 
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       5       |    Seq Num    |       0       |
@@ -377,7 +377,7 @@ where the Enable byte is a boolean used to enable (1) or disable (0) the notific
 The format of the response message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       5       |    Seq Num    |   Resp Code   |
@@ -399,7 +399,7 @@ The format of the response message is:
 The server sends a Characteristric Notification message to inform the client of an event.  The event can be periodic, or it can be triggered by a previous command sent by the client to request the server to perform some operation.  The format of the message is:
 
 ```
-                        1                   2                   3
+                          1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  0   |   Version     |       6       |    Seq Num    |       0       |
